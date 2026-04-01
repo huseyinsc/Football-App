@@ -1,0 +1,27 @@
+{
+    "branches": [
+        "master"
+    ],
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/changelog",
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "cd backend && mvn versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false"
+            }
+        ],
+        [
+            "@semantic-release/git",
+            {
+                "assets": [
+                    "backend/pom.xml",
+                    "CHANGELOG.md"
+                ],
+                "message": "chore(release): ${nextRelease.version} [skip ci]"
+            }
+        ],
+        "@semantic-release/github"
+    ]
+}
