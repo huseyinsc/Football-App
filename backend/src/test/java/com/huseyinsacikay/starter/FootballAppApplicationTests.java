@@ -1,4 +1,4 @@
-package com.huseyinsacikay.football_app;
+package com.huseyinsacikay.starter;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

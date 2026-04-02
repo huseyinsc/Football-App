@@ -1,4 +1,4 @@
-package com.huseyinsacikay.football_app;
+package com.huseyinsacikay.starter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
