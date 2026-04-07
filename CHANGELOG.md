@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/huseyinsc/Football-App/compare/v0.8.0...v0.9.0) (2026-04-07)
+
+
+### Features
+
+* **Security & JWT:** implement role-based access control with JWT ([634b687](https://github.com/huseyinsc/Football-App/commit/634b687ba2de1179b2760bd6920245c576965d6b))
+
 # [0.8.0](https://github.com/huseyinsc/Football-App/compare/v0.7.1...v0.8.0) (2026-04-07)
 
 
