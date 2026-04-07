@@ -1,0 +1,9 @@
+# 1.0.0 (2026-04-07)
+
+
+### Features
+
+* **Database & Flyway:** add initial flyway migration for users table ([674a488](https://github.com/huseyinsc/Football-App/commit/674a488f7fed95c4f26dc9aacbe54cac0b769475))
+* **Domain Entities:** implement comprehensive database schema and domain entities ([c316a5a](https://github.com/huseyinsc/Football-App/commit/c316a5aa11e2bdd70e302164fb2bdd801c83f565))
+* **Global Exception Handling:** implement global exception handling with generic api error and sealed exceptions ([3d9a92e](https://github.com/huseyinsc/Football-App/commit/3d9a92e467da034c0ad6a2269cb2fb2a40a4587c))
+* **Profiles:** updated configuration for db connection and documentation ([e67eed1](https://github.com/huseyinsc/Football-App/commit/e67eed1e81b073a1124b287629f37be28825ed70))
