@@ -32,3 +32,7 @@ To recreate or initialize the backend, use the following settings:
 | **08** | **Scheduled Jobs**            | Automated tasks for expired reservations and notifications.                                                |
 | **09** | **Security & JWT**            | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
 | **10** | **Advanced Features**         | Swagger documentation and performance optimizations.                                                       |
+
+## Testing & TDD Approach
+
+While unit testing was not explicitly separated as its own roadmap phase, **testing is an integral, continuous process applied from Phase 06 onwards**. We employ an iterative approach to write tests for the core business logic (Service Layer) and continue to enforce test coverage for all subsequent features (Scheduled Jobs, Security, etc.) to maintain software quality without breaking the established phase order.
