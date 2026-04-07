@@ -8,11 +8,11 @@ import com.huseyinsacikay.exception.NotFoundException;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.service.PitchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,10 +43,9 @@ public class PitchServiceImpl implements PitchService {
     }
 
     @Override
-    public List<PitchResponse> getAllPitches() {
-        return pitchRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PitchResponse> getAllPitches(Pageable pageable) {
+        return pitchRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     @Override

@@ -14,12 +14,12 @@ import com.huseyinsacikay.repository.ReservationRepository;
 import com.huseyinsacikay.repository.UserRepository;
 import com.huseyinsacikay.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,17 +69,15 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<ReservationResponse> getReservationsByUserId(UUID userId) {
-        return reservationRepository.findByUserId(userId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<ReservationResponse> getReservationsByUserId(UUID userId, Pageable pageable) {
+        return reservationRepository.findByUserId(userId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
-    public List<ReservationResponse> getReservationsByPitchId(UUID pitchId) {
-        return reservationRepository.findByPitchId(pitchId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<ReservationResponse> getReservationsByPitchId(UUID pitchId, Pageable pageable) {
+        return reservationRepository.findByPitchId(pitchId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override

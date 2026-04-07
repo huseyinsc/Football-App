@@ -31,6 +31,11 @@
                 "message": "chore(release): ${nextRelease.version} [skip ci]"
             }
         ],
-        "@semantic-release/github"
+        [
+            "@semantic-release/exec",
+            {
+                "publishCmd": "if [ $(echo ${nextRelease.version} | cut -d. -f1) -ge 1 ]; then echo \"${nextRelease.notes}\" > .release_notes.md && gh release create v${nextRelease.version} --title \"v${nextRelease.version}\" --notes-file .release_notes.md; else echo 'Version < 1.0.0. Tag created but GitHub release skipped.'; fi"
+            }
+        ]
     ]
 }
