@@ -30,7 +30,7 @@ To recreate or initialize the backend, use the following settings:
 | **06** | **DTO & Service Layer** ✅     | Implementing business logic and DTO mapping.                                                               |
 | **07** | **Pagination & Sorting** ✅    | Adding filtering and paging for pitch listings and history.                                                |
 | **08** | **Scheduled Jobs** ✅          | Automated tasks for expired reservations and notifications.                                                |
-| **09** | **Security & JWT**            | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
+| **09** | **Security & JWT** ✅          | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
 | **10** | **Advanced Features**         | Swagger documentation and performance optimizations.                                                       |
 
 ## Testing & TDD Approach
