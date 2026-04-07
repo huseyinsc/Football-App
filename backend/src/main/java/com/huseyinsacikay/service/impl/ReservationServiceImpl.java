@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         long hours = Duration.between(request.getStartTime(), request.getEndTime()).toHours();
-        double totalPrice = hours * pitch.getHourlyPrice().doubleValue();
+        BigDecimal totalPrice = pitch.getHourlyPrice().multiply(BigDecimal.valueOf(hours));
 
         Reservation reservation = Reservation.builder()
                 .user(user)

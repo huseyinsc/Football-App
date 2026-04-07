@@ -2,6 +2,8 @@ package com.huseyinsacikay.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class Reservation {
     private LocalDateTime endTime;
 
     @Column(name = "total_price")
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

@@ -83,7 +83,7 @@ class ReservationServiceImplTest {
                 .pitch(mockPitch)
                 .startTime(createRequest.getStartTime())
                 .endTime(createRequest.getEndTime())
-                .totalPrice(200.0)
+                .totalPrice(BigDecimal.valueOf(200.0))
                 .status(ReservationStatus.PENDING)
                 .build();
     }
@@ -97,7 +97,7 @@ class ReservationServiceImplTest {
         ReservationResponse response = reservationService.createReservation(createRequest);
 
         assertNotNull(response);
-        assertEquals(200.0, response.getTotalPrice());
+        assertEquals(BigDecimal.valueOf(200.0), response.getTotalPrice());
         verify(reservationRepository).save(any(Reservation.class));
     }
 

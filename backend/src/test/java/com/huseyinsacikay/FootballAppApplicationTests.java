@@ -1,4 +1,4 @@
-package com.huseyinsacikay.starter;
+package com.huseyinsacikay;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

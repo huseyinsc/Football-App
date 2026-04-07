@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,6 +20,6 @@ public class ReservationResponse {
     private String pitchName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
     private ReservationStatus status;
 }
