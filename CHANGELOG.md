@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/huseyinsc/Football-App/compare/v0.7.1...v0.8.0) (2026-04-07)
+
+
+### Features
+
+* **Scheduled Jobs:** implement automated tasks for expired reservations ([d90fa33](https://github.com/huseyinsc/Football-App/commit/d90fa33d2c1992795c209c61515a41fd73b8516d))
+
 ## [0.7.1](https://github.com/huseyinsc/Football-App/compare/v0.7.0...v0.7.1) (2026-04-07)
 
 # [0.7.0](https://github.com/huseyinsc/Football-App/compare/v0.6.0...v0.7.0) (2026-04-07)
