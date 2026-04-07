@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/huseyinsc/Football-App/compare/v0.6.0...v0.7.0) (2026-04-07)
+
+
+### Features
+
+* **Pagination & Sorting:** implement pagination and sorting for pitch listings and history ([e41541e](https://github.com/huseyinsc/Football-App/commit/e41541e7773270a177bdbbc3d6f4fe7f51a4ec17))
+
 # [0.6.0](https://github.com/huseyinsc/Football-App/compare/v0.5.0...v0.6.0) (2026-04-07)
 
 
