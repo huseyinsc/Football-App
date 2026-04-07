@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/huseyinsc/Football-App/compare/v0.5.0...v0.6.0) (2026-04-07)
+
+
+### Features
+
+* **DTO & Service Layer:** implement business logic and DTO mapping ([3006bd2](https://github.com/huseyinsc/Football-App/commit/3006bd2369655b8ceb8e8c7c598b9e90f525589d))
+
 # 1.0.0 (2026-04-07)
 
 
