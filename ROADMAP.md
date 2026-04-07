@@ -22,12 +22,12 @@ To recreate or initialize the backend, use the following settings:
 
 | Phase  | Title                         | Description                                                                                                |
 | :----- | :---------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| **01** | **Project Architecture**      | Setting up README, Roadmap, and directory structure.                                                       |
-| **02** | **Profiles:**                 | Using `application.yml` with profiles (`default`, `dev`, `test`) and `.env` integration for security.      |
-| **03** | **Database & Flyway**         | PostgreSQL integration and `V1__init_schema.sql` (Fields, Users).                                          |
-| **04** | **Domain Entities**           | Creating `Pitch`, `Reservation`, and `User` entities with relationships.                                   |
-| **05** | **Global Exception Handling** | Implementing `@RestControllerAdvice`, sealed classes, and generic error wrappers for dynamic status codes. |
-| **06** | **DTO & Service Layer**       | Implementing business logic and DTO mapping.                                                               |
+| **01** | **Project Architecture** ✅    | Setting up README, Roadmap, and directory structure.                                                       |
+| **02** | **Profiles:** ✅               | Using `application.yml` with profiles (`default`, `dev`, `test`) and `.env` integration for security.      |
+| **03** | **Database & Flyway** ✅       | PostgreSQL integration and `V1__init_schema.sql` (Fields, Users).                                          |
+| **04** | **Domain Entities** ✅         | Creating `Pitch`, `Reservation`, and `User` entities with relationships.                                   |
+| **05** | **Global Exception Handling** ✅| Implementing `@RestControllerAdvice`, sealed classes, and generic error wrappers for dynamic status codes. |
+| **06** | **DTO & Service Layer** ✅     | Implementing business logic and DTO mapping.                                                               |
 | **07** | **Pagination & Sorting**      | Adding filtering and paging for pitch listings and history.                                                |
 | **08** | **Scheduled Jobs**            | Automated tasks for expired reservations and notifications.                                                |
 | **09** | **Security & JWT**            | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |

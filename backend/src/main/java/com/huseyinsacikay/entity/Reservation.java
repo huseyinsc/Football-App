@@ -33,5 +33,6 @@ public class Reservation {
     private Double totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
 }

@@ -26,5 +26,6 @@ public class Pitch {
     private Integer capacity; // 6v6, 7v7 vb.
 
     @Column(name = "is_available")
+    @Builder.Default
     private boolean isAvailable = true;
 }

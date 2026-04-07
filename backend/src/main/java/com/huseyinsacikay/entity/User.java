@@ -32,12 +32,14 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
 
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
     @Column(name = "is_active")
+    @Builder.Default
     private boolean isActive = true;
 
     @CreationTimestamp
