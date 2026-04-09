@@ -37,7 +37,27 @@ jobs:
                     @semantic-release/git
 
             - name: Run Semantic Release
+              id: semantic
               env:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
                   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-              run: npx semantic-release
+              run: |
+                  npx semantic-release
+                  echo "next_version=$(git describe --tags --abbrev=0 | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+            - name: Create GitHub Release
+              if: steps.semantic.outputs.next_version != ''
+              env:
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+              run: |
+                  VERSION="v${{ steps.semantic.outputs.next_version }}"
+                  MAJOR=$(echo $VERSION | cut -d. -f1 | sed 's/^v//')
+                  if [ "$MAJOR" -ge 1 ]; then
+                      echo "Creating GitHub Release for $VERSION"
+                      gh release create "$VERSION" \
+                          --title "$VERSION" \
+                          --notes "Release $VERSION" \
+                          --generate-notes
+                  else
+                      echo "Version < 1.0.0. Tag created but GitHub release skipped."
+                  fi

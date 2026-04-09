@@ -71,7 +71,7 @@ public class ReservationServiceImpl implements ReservationService {
         BigDecimal totalPrice = calculateTotalPrice(pitch, request.getStartTime(), request.getEndTime());
 
         Reservation reservation = Reservation.builder()
-                .user(user)
+                .organizer(user)
                 .pitch(pitch)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -94,7 +94,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Page<ReservationResponse> getReservationsByUserId(UUID userId, Pageable pageable) {
-        return reservationRepository.findByUserId(userId, pageable)
+        return reservationRepository.findByOrganizerId(userId, pageable)
                 .map(this::mapToResponse);
     }
 
@@ -148,7 +148,7 @@ public class ReservationServiceImpl implements ReservationService {
         if (currentUser.getRole() == Role.ADMIN) {
             return;
         }
-        if (!reservation.getUser().getId().equals(currentUser.getId())) {
+        if (!reservation.getOrganizer().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
         }
     }
@@ -164,8 +164,8 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationResponse mapToResponse(Reservation reservation) {
         return ReservationResponse.builder()
                 .id(reservation.getId())
-                .userId(reservation.getUser().getId())
-                .username(reservation.getUser().getUsername())
+                .userId(reservation.getOrganizer().getId())
+                .username(reservation.getOrganizer().getUsername())
                 .pitchId(reservation.getPitch().getId())
                 .pitchName(reservation.getPitch().getName())
                 .startTime(reservation.getStartTime())

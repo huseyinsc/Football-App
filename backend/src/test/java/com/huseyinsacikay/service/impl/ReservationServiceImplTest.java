@@ -83,7 +83,7 @@ class ReservationServiceImplTest {
 
         mockReservation = Reservation.builder()
                 .id(reservationId)
-                .user(mockUser)
+                .organizer(mockUser)
                 .pitch(mockPitch)
                 .startTime(createRequest.getStartTime())
                 .endTime(createRequest.getEndTime())
@@ -209,7 +209,7 @@ class ReservationServiceImplTest {
     void getReservationsByUserId_ShouldReturnPagedResponses() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Reservation> pagedReservations = new PageImpl<>(List.of(mockReservation));
-        when(reservationRepository.findByUserId(userId, pageable)).thenReturn(pagedReservations);
+        when(reservationRepository.findByOrganizerId(userId, pageable)).thenReturn(pagedReservations);
 
         Page<ReservationResponse> responses = reservationService.getReservationsByUserId(userId, pageable);
 

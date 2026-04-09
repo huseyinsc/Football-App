@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
-    Page<Reservation> findByUserId(UUID userId, Pageable pageable);
+    Page<Reservation> findByOrganizerId(UUID userId, Pageable pageable);
     Page<Reservation> findByPitchId(UUID pitchId, Pageable pageable);
     boolean existsByPitchIdAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
             UUID pitchId,

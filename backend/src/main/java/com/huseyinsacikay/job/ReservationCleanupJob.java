@@ -35,7 +35,7 @@ public class ReservationCleanupJob {
             expiredReservations.forEach(reservation -> {
                 reservation.setStatus(ReservationStatus.EXPIRED);
                 // Here we would typically also send an email/notification to the user
-                log.info("Reservation {} marked as EXPIRED for user {}", reservation.getId(), reservation.getUser().getUsername());
+                log.info("Reservation {} marked as EXPIRED for user {}", reservation.getId(), reservation.getOrganizer().getUsername());
             });
 
             reservationRepository.saveAll(expiredReservations);

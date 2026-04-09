@@ -1,9 +1,12 @@
 package com.huseyinsacikay.controller;
 
 import com.huseyinsacikay.entity.Pitch;
+import com.huseyinsacikay.entity.Role;
+import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.repository.ReservationRepository;
 import com.huseyinsacikay.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -39,6 +43,9 @@ class ApiErrorContractIntegrationTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private String user1Token;
     private UUID user1Id;
     private UUID user2Id;
@@ -63,11 +70,29 @@ class ApiErrorContractIntegrationTest {
                 .build());
         pitchId = pitch.getId();
 
-        user1Token = registerUserAndGetToken("user1", "user1@test.com", "pass1");
-        user1Id = userRepository.findByUsername("user1").orElseThrow().getId();
+        // Create users directly in the database instead of via API
+        User user1 = userRepository.save(User.builder()
+                .username("user1")
+                .email("user1@test.com")
+                .password(passwordEncoder.encode("pass1"))
+                .phoneNumber("111")
+                .role(Role.USER)
+                .isActive(true)
+                .build());
+        user1Id = user1.getId();
 
-        registerUserAndGetToken("user2", "user2@test.com", "pass2");
-        user2Id = userRepository.findByUsername("user2").orElseThrow().getId();
+        User user2 = userRepository.save(User.builder()
+                .username("user2")
+                .email("user2@test.com")
+                .password(passwordEncoder.encode("pass2"))
+                .phoneNumber("222")
+                .role(Role.USER)
+                .isActive(true)
+                .build());
+        user2Id = user2.getId();
+
+        // Get a token for user1 by calling login
+        user1Token = loginAndGetToken("user1", "pass1");
     }
 
     @Test
@@ -127,14 +152,13 @@ class ApiErrorContractIntegrationTest {
                 .andExpect(jsonPath("$.exception.message.startTime").value("Start time must be in the future"));
     }
 
-    private String registerUserAndGetToken(String username, String email, String password) throws Exception {
+    private String loginAndGetToken(String username, String password) throws Exception {
         String requestBody = String.format(
-                "{\"username\":\"%s\",\"email\":\"%s\",\"password\":\"%s\",\"phoneNumber\":\"111\"}",
+                "{\"username\":\"%s\",\"password\":\"%s\"}",
                 username,
-                email,
                 password
         );
-        String response = mockMvc.perform(post("/api/v1/auth/register")
+        String response = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andReturn()

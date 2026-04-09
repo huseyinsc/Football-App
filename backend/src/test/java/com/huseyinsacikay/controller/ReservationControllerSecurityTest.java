@@ -172,7 +172,7 @@ public class ReservationControllerSecurityTest {
     private UUID createReservationForUser(UUID reservationUserId, String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
         Reservation reservation = reservationRepository.save(Reservation.builder()
-                .user(user)
+                .organizer(user)
                 .pitch(pitchRepository.findById(pitchId).orElseThrow())
                 .startTime(LocalDateTime.now().plusDays(1))
                 .endTime(LocalDateTime.now().plusDays(1).plusHours(2))

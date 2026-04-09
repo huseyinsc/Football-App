@@ -3,6 +3,7 @@ package com.huseyinsacikay.handler;
 import com.huseyinsacikay.exception.BaseException;
 import com.huseyinsacikay.exception.MessageType;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,11 +16,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiError<String>> handleBaseException(BaseException ex, HttpServletRequest request) {
+        log.debug("Handled BaseException [{}] for {}", ex.getMessageType().getCode(), request.getRequestURI());
         return ResponseEntity
                 .status(ex.getStatus())
                 .body(ApiErrorFactory.create(ex.getMessageType().getCode(), ex.getMessage(), request.getRequestURI(), ex.getStatus()));
@@ -35,6 +38,7 @@ public class GlobalExceptionHandler {
             validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
+        log.debug("Validation failure on {}: {}", request.getRequestURI(), validationErrors);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiErrorFactory.create(
@@ -54,6 +58,7 @@ public class GlobalExceptionHandler {
                 ? MessageType.INVALID_CREDENTIALS
                 : MessageType.AUTHENTICATION_REQUIRED;
 
+        log.debug("Authentication failure on {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ApiErrorFactory.create(
@@ -69,6 +74,7 @@ public class GlobalExceptionHandler {
             AccessDeniedException ex,
             HttpServletRequest request
     ) {
+        log.debug("Access denied for {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiErrorFactory.create(
@@ -81,11 +87,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError<String>> handleUnexpectedException(Exception ex, HttpServletRequest request) {
+        log.error("Unexpected exception for {}", request.getRequestURI(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiErrorFactory.create(
                         MessageType.GENERAL_EXCEPTION.getCode(),
-                        MessageType.GENERAL_EXCEPTION.getMessage(),
+                        "An unexpected error occurred. Please contact support if the issue persists.",
                         request.getRequestURI(),
                         HttpStatus.INTERNAL_SERVER_ERROR
                 ));

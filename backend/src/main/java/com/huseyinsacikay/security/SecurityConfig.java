@@ -24,11 +24,19 @@ public class SecurityConfig {
     private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        req.requestMatchers(
+                                        "/api/v1/auth/**",
+                                        "/v3/api-docs",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/webjars/**"
+                                )
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

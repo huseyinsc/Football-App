@@ -37,7 +37,7 @@ class ReservationCleanupJobTest {
         
         mockReservation = Reservation.builder()
                 .id(UUID.randomUUID())
-                .user(user)
+                .organizer(user)
                 .status(ReservationStatus.PENDING)
                 .startTime(LocalDateTime.now().minusHours(1))
                 .build();
