@@ -1,3 +1,10 @@
+## [0.9.1](https://github.com/huseyinsc/Football-App/compare/v0.9.0...v0.9.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* harden reservation booking and auth flows ([0be8658](https://github.com/huseyinsc/Football-App/commit/0be86589a611d758c3900b91d2ba0a527b8c432f))
+
 # [0.9.0](https://github.com/huseyinsc/Football-App/compare/v0.8.0...v0.9.0) (2026-04-07)
 
 
