@@ -20,19 +20,18 @@ To recreate or initialize the backend, use the following settings:
 
 ## Development Phases
 
-| Phase  | Title                         | Description                                                                                                |
-| :----- | :---------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| **01** | **Project Architecture** ✅    | Setting up README, Roadmap, and directory structure.                                                       |
-| **02** | **Profiles:** ✅               | Using `application.yml` with profiles (`default`, `dev`, `test`) and `.env` integration for security.      |
-| **03** | **Database & Flyway** ✅       | PostgreSQL integration and `V1__init_schema.sql` (Fields, Users).                                          |
-| **04** | **Domain Entities** ✅         | Creating `Pitch`, `Reservation`, and `User` entities with relationships.                                   |
-| **05** | **Global Exception Handling** ✅| Implementing `@RestControllerAdvice`, sealed classes, and generic error wrappers for dynamic status codes. |
-| **06** | **DTO & Service Layer** ✅     | Implementing business logic and DTO mapping.                                                               |
-| **07** | **Pagination & Sorting** ✅    | Adding filtering and paging for pitch listings and history.                                                |
-| **08** | **Scheduled Jobs** ✅          | Automated tasks for expired reservations and notifications.                                                |
-| **09** | **Security & JWT** ✅          | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
-| **10** | **QA Hardening** ✅            | Closing critical QA findings: reservation ownership checks, time/overlap validation, prorated pricing, and test isolation. |
-| **11** | **Advanced Features**         | Swagger documentation and performance optimizations after the hardened API contract is stable.             |
+| Phase  | Title                            | Description                                                                                                |
+| :----- | :------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| **01** | **Project Architecture** ✅      | Setting up README, Roadmap, and directory structure.                                                       |
+| **02** | **Profiles:** ✅                 | Using `application.yml` with profiles (`default`, `dev`, `test`) and `.env` integration for security.      |
+| **03** | **Database & Flyway** ✅         | PostgreSQL integration and `V1__init_schema.sql` (Fields, Users).                                          |
+| **04** | **Domain Entities** ✅           | Creating `Pitch`, `Reservation`, and `User` entities with relationships.                                   |
+| **05** | **Global Exception Handling** ✅ | Implementing `@RestControllerAdvice`, sealed classes, and generic error wrappers for dynamic status codes. |
+| **06** | **DTO & Service Layer** ✅       | Implementing business logic and DTO mapping.                                                               |
+| **07** | **Pagination & Sorting** ✅      | Adding filtering and paging for pitch listings and history.                                                |
+| **08** | **Scheduled Jobs** ✅            | Automated tasks for expired reservations and notifications.                                                |
+| **09** | **Security & JWT** ✅            | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
+| **10** | **Advanced Features**            | Swagger documentation and performance optimizations after the hardened API contract is stable.             |
 
 ## Testing & TDD Approach
 
@@ -42,3 +41,4 @@ The current test setup now uses:
 
 - Mockito unit tests configured to avoid Java 25 agent-attachment failures.
 - An isolated Spring Boot test profile backed by H2 instead of a developer-managed PostgreSQL instance.
+- Integration coverage for API error contracts around authentication, authorization, and request validation.

@@ -6,12 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError<String>> handleBaseException(BaseException ex, HttpServletRequest request) {
         return ResponseEntity
                 .status(ex.getStatus())
-                .body(createApiError(ex.getMessageType().getCode(), ex.getMessage(), request, ex.getStatus()));
+                .body(ApiErrorFactory.create(ex.getMessageType().getCode(), ex.getMessage(), request.getRequestURI(), ex.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -37,7 +37,31 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(createApiError(MessageType.VALIDATION_ERROR.getCode(), validationErrors, request, HttpStatus.BAD_REQUEST));
+                .body(ApiErrorFactory.create(
+                        MessageType.VALIDATION_ERROR.getCode(),
+                        validationErrors,
+                        request.getRequestURI(),
+                        HttpStatus.BAD_REQUEST
+                ));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError<String>> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        MessageType messageType = request.getRequestURI().endsWith("/api/v1/auth/login")
+                ? MessageType.INVALID_CREDENTIALS
+                : MessageType.AUTHENTICATION_REQUIRED;
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiErrorFactory.create(
+                        messageType.getCode(),
+                        messageType.getMessage(),
+                        request.getRequestURI(),
+                        HttpStatus.UNAUTHORIZED
+                ));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -47,32 +71,23 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(createApiError(MessageType.ACCESS_DENIED.getCode(), MessageType.ACCESS_DENIED.getMessage(), request, HttpStatus.FORBIDDEN));
+                .body(ApiErrorFactory.create(
+                        MessageType.ACCESS_DENIED.getCode(),
+                        MessageType.ACCESS_DENIED.getMessage(),
+                        request.getRequestURI(),
+                        HttpStatus.FORBIDDEN
+                ));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError<String>> handleUnexpectedException(Exception ex, HttpServletRequest request) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(createApiError(
+                .body(ApiErrorFactory.create(
                         MessageType.GENERAL_EXCEPTION.getCode(),
                         MessageType.GENERAL_EXCEPTION.getMessage(),
-                        request,
+                        request.getRequestURI(),
                         HttpStatus.INTERNAL_SERVER_ERROR
                 ));
-    }
-
-    private <E> ApiError<E> createApiError(String code, E message, HttpServletRequest request, HttpStatus status) {
-        ApiError<E> apiError = new ApiError<>();
-        apiError.setStatus(status.value());
-
-        InternalException<E> internalException = new InternalException<>();
-        internalException.setCreateTime(OffsetDateTime.now());
-        internalException.setCode(code);
-        internalException.setPath(request.getRequestURI());
-        internalException.setMessage(message);
-
-        apiError.setException(internalException);
-        return apiError;
     }
 }

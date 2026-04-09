@@ -13,6 +13,8 @@ public enum MessageType {
     ACCESS_DENIED("1007", "You are not allowed to access this reservation"),
     RESERVATION_NOT_CANCELLABLE("1008", "Reservation cannot be cancelled in its current state"),
     VALIDATION_ERROR("1009", "Request validation failed"),
+    AUTHENTICATION_REQUIRED("1010", "Authentication is required to access this resource"),
+    INVALID_CREDENTIALS("1011", "Invalid username or password"),
     GENERAL_EXCEPTION("9999", "An unexpected error occurred");
 
     private final String code;

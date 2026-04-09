@@ -35,6 +35,8 @@ Football App is an application for organizing matches. full-stack application de
 - Reservation creation now rejects past bookings, invalid time ranges, and overlapping active bookings on the same pitch.
 - Partial-hour reservations are priced proportionally instead of being rounded down to zero.
 - JWT signing no longer falls back to a hard-coded secret; startup now requires an explicit `JWT_SECRET`.
+- Security-origin `401` and `403` responses now use the same `ApiError` JSON contract as the rest of the API.
+- Authentication, validation, and reservation-access error contracts are covered by integration tests before Swagger work begins.
 
 ## 🗺️ Project Status
 
