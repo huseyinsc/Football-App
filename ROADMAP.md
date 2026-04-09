@@ -31,8 +31,14 @@ To recreate or initialize the backend, use the following settings:
 | **07** | **Pagination & Sorting** ✅    | Adding filtering and paging for pitch listings and history.                                                |
 | **08** | **Scheduled Jobs** ✅          | Automated tasks for expired reservations and notifications.                                                |
 | **09** | **Security & JWT** ✅          | Implementing Role-Based Access Control (Admin/User) with JWT.                                              |
-| **10** | **Advanced Features**         | Swagger documentation and performance optimizations.                                                       |
+| **10** | **QA Hardening** ✅            | Closing critical QA findings: reservation ownership checks, time/overlap validation, prorated pricing, and test isolation. |
+| **11** | **Advanced Features**         | Swagger documentation and performance optimizations after the hardened API contract is stable.             |
 
 ## Testing & TDD Approach
 
 While unit testing was not explicitly separated as its own roadmap phase, **testing is an integral, continuous process applied from Phase 06 onwards**. We employ an iterative approach to write tests for the core business logic (Service Layer) and continue to enforce test coverage for all subsequent features (Scheduled Jobs, Security, etc.) to maintain software quality without breaking the established phase order.
+
+The current test setup now uses:
+
+- Mockito unit tests configured to avoid Java 25 agent-attachment failures.
+- An isolated Spring Boot test profile backed by H2 instead of a developer-managed PostgreSQL instance.

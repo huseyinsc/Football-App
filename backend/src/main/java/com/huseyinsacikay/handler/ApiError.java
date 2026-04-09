@@ -8,12 +8,12 @@ import java.time.OffsetDateTime;
 @Getter @Setter
 public class ApiError<E> {
     private Integer status;
-    private InternalException<E> exception; // Java'nın kendi Exception sınıfıyla karışmaması için adını değiştirdik
+    private InternalException<E> exception;
 }
 
 @Getter @Setter
 class InternalException<E> {
-    private String hostName;
+    private String code;
     private String path;
     private OffsetDateTime createTime;
     private E message;

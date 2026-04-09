@@ -1,6 +1,9 @@
 package com.huseyinsacikay.controller;
 
 import com.huseyinsacikay.entity.Pitch;
+import com.huseyinsacikay.entity.Reservation;
+import com.huseyinsacikay.entity.ReservationStatus;
+import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.repository.ReservationRepository;
 import com.huseyinsacikay.repository.UserRepository;
@@ -14,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -127,5 +131,57 @@ public class ReservationControllerSecurityTest {
         mockMvc.perform(get("/api/v1/reservations/user/" + user1Id)
                 .header("Authorization", "Bearer " + user1Token))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void userCannotGetAnotherUsersReservationById() throws Exception {
+        UUID reservationId = createReservationForUser(user2Id, "user2");
+
+        mockMvc.perform(get("/api/v1/reservations/" + reservationId)
+                .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void userCanGetOwnReservationById() throws Exception {
+        UUID reservationId = createReservationForUser(user1Id, "user1");
+
+        mockMvc.perform(get("/api/v1/reservations/" + reservationId)
+                .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void userCannotCancelAnotherUsersReservation() throws Exception {
+        UUID reservationId = createReservationForUser(user2Id, "user2");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/v1/reservations/" + reservationId)
+                .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void userCanCancelOwnReservation() throws Exception {
+        UUID reservationId = createReservationForUser(user1Id, "user1");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/v1/reservations/" + reservationId)
+                .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isNoContent());
+    }
+
+    private UUID createReservationForUser(UUID reservationUserId, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Reservation reservation = reservationRepository.save(Reservation.builder()
+                .user(user)
+                .pitch(pitchRepository.findById(pitchId).orElseThrow())
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now().plusDays(1).plusHours(2))
+                .status(ReservationStatus.PENDING)
+                .totalPrice(BigDecimal.valueOf(200.00))
+                .build());
+        if (!user.getId().equals(reservationUserId)) {
+            throw new IllegalStateException("Test reservation user mismatch");
+        }
+        return reservation.getId();
     }
 }

@@ -13,7 +13,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -26,6 +26,12 @@ spring:
     #use these temporarily after changes in sql scirpt
     #baseline-version: 0
     #validate-on-migrate: false
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION:86400000}
 
 ---
 spring:

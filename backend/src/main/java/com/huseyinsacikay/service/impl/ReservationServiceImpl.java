@@ -3,9 +3,11 @@ package com.huseyinsacikay.service.impl;
 import com.huseyinsacikay.dto.request.ReservationCreateRequest;
 import com.huseyinsacikay.dto.response.ReservationResponse;
 import com.huseyinsacikay.entity.Pitch;
+import com.huseyinsacikay.entity.Role;
 import com.huseyinsacikay.entity.Reservation;
 import com.huseyinsacikay.entity.ReservationStatus;
 import com.huseyinsacikay.entity.User;
+import com.huseyinsacikay.exception.BadRequestException;
 import com.huseyinsacikay.exception.ConflictException;
 import com.huseyinsacikay.exception.MessageType;
 import com.huseyinsacikay.exception.NotFoundException;
@@ -16,37 +18,57 @@ import com.huseyinsacikay.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
+    private static final List<ReservationStatus> ACTIVE_RESERVATION_STATUSES = List.of(
+            ReservationStatus.PENDING,
+            ReservationStatus.CONFIRMED
+    );
 
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final PitchRepository pitchRepository;
 
     @Override
+    @Transactional
     public ReservationResponse createReservation(ReservationCreateRequest request) {
+        validateReservationTimes(request);
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
-        Pitch pitch = pitchRepository.findById(request.getPitchId())
+        Pitch pitch = pitchRepository.findByIdForUpdate(request.getPitchId())
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
-        // Check if pitch is available for this time.
-        // For simplicity in Phase 6, we just do a basic check or skip complex overlapping logic.
-        // Actually we can check existing reservations for overlap if we want, but let's keep it simple.
         if (!pitch.isAvailable()) {
             throw new ConflictException(MessageType.PITCH_NOT_AVAILABLE);
         }
 
-        long hours = Duration.between(request.getStartTime(), request.getEndTime()).toHours();
-        BigDecimal totalPrice = pitch.getHourlyPrice().multiply(BigDecimal.valueOf(hours));
+        boolean hasOverlap = reservationRepository.existsByPitchIdAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
+                pitch.getId(),
+                ACTIVE_RESERVATION_STATUSES,
+                request.getEndTime(),
+                request.getStartTime()
+        );
+        if (hasOverlap) {
+            throw new ConflictException(MessageType.RESERVATION_TIME_OVERLAP);
+        }
+
+        BigDecimal totalPrice = calculateTotalPrice(pitch, request.getStartTime(), request.getEndTime());
 
         Reservation reservation = Reservation.builder()
                 .user(user)
@@ -66,6 +88,7 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationResponse getReservationById(UUID id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
+        authorizeReservationAccess(reservation);
         return mapToResponse(reservation);
     }
 
@@ -82,12 +105,60 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
     public void cancelReservation(UUID id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
-        
+
+        authorizeReservationAccess(reservation);
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            return;
+        }
+        if (reservation.getStatus() == ReservationStatus.COMPLETED || reservation.getStatus() == ReservationStatus.EXPIRED) {
+            throw new ConflictException(MessageType.RESERVATION_NOT_CANCELLABLE);
+        }
+
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+    }
+
+    private void validateReservationTimes(ReservationCreateRequest request) {
+        LocalDateTime now = LocalDateTime.now();
+        if (!request.getStartTime().isAfter(now)) {
+            throw new BadRequestException(MessageType.RESERVATION_TIME_IN_PAST);
+        }
+        if (!request.getEndTime().isAfter(request.getStartTime())) {
+            throw new BadRequestException(MessageType.INVALID_RESERVATION_TIME_RANGE);
+        }
+    }
+
+    private BigDecimal calculateTotalPrice(Pitch pitch, LocalDateTime startTime, LocalDateTime endTime) {
+        long minutes = Duration.between(startTime, endTime).toMinutes();
+        BigDecimal reservedHours = BigDecimal.valueOf(minutes)
+                .divide(BigDecimal.valueOf(60), 4, RoundingMode.HALF_UP);
+
+        return pitch.getHourlyPrice()
+                .multiply(reservedHours)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void authorizeReservationAccess(Reservation reservation) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getRole() == Role.ADMIN) {
+            return;
+        }
+        if (!reservation.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
+        }
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
+        }
+        return user;
     }
 
     private ReservationResponse mapToResponse(Reservation reservation) {

@@ -4,14 +4,14 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-// Sealed class: Sadece belirli sınıflar inherit edebilir
-public abstract sealed class BaseException extends RuntimeException permits NotFoundException, ConflictException {
+public abstract sealed class BaseException extends RuntimeException permits NotFoundException, ConflictException, BadRequestException {
     private final HttpStatus status;
+    private final MessageType messageType;
 
-    public BaseException(String message, HttpStatus status) {
-        super(message);
+    public BaseException(MessageType messageType, HttpStatus status) {
+        super(messageType.getMessage());
         this.status = status;
+        this.messageType = messageType;
     }
 }
-
 

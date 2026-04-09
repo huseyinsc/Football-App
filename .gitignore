@@ -1,4 +1,5 @@
 ### IntelliJ IDEA ###
+.idea/
 .idea
 *.iws
 *.iml
@@ -6,3 +7,6 @@
 
 ### VS Code ###
 .vscode/
+
+QA/
+.codex
