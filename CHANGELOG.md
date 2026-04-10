@@ -1,3 +1,17 @@
+# [1.0.0](https://github.com/huseyinsc/Football-App/compare/v0.9.2...v1.0.0) (2026-04-10)
+
+
+### Features
+
+* complete v1.0.0 release with multi-user reservations and enhanced API ([03d4e43](https://github.com/huseyinsc/Football-App/commit/03d4e43557564f3b1ddbab1922cdc08183703b53))
+
+
+### BREAKING CHANGES
+
+* Reservation domain now uses organizer + participants instead of single user
+* Password validation now enforces complexity requirements
+* New required endpoints: /api/v1/pitches/* and /api/v1/users/*"
+
 ## [0.9.2](https://github.com/huseyinsc/Football-App/compare/v0.9.1...v0.9.2) (2026-04-09)
 
 ### Bug Fixes
