@@ -18,37 +18,38 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
-    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
-    private final RestAccessDeniedHandler restAccessDeniedHandler;
+        private final JwtAuthenticationFilter jwtAuthFilter;
+        private final AuthenticationProvider authenticationProvider;
+        private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+        private final RestAccessDeniedHandler restAccessDeniedHandler;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http){
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req ->
-                        req.requestMatchers(
-                                        "/api/v1/auth/**",
-                                        "/v3/api-docs",
-                                        "/v3/api-docs/**",
-                                        "/v3/api-docs.yaml",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/webjars/**"
-                                )
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(restAuthenticationEntryPoint)
-                        .accessDeniedHandler(restAccessDeniedHandler)
-                )
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .authorizeHttpRequests(req -> req.requestMatchers(
+                                                org.springframework.http.HttpMethod.GET,
+                                                "/api/v1/pitches",
+                                                "/api/v1/pitches/**").permitAll()
+                                                .requestMatchers(
+                                                                "/api/v1/auth/**",
+                                                                "/v3/api-docs",
+                                                                "/v3/api-docs/**",
+                                                                "/v3/api-docs.yaml",
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html",
+                                                                "/webjars/**")
+                                                .permitAll()
+                                                .anyRequest()
+                                                .authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(exceptions -> exceptions
+                                                .authenticationEntryPoint(restAuthenticationEntryPoint)
+                                                .accessDeniedHandler(restAccessDeniedHandler))
+                                .authenticationProvider(authenticationProvider)
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

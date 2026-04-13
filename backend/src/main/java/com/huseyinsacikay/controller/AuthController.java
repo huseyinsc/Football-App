@@ -18,9 +18,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Authentication", description = "Public endpoints for user registration and login.")
 public class AuthController {
 
@@ -61,7 +64,10 @@ public class AuthController {
             )
             @Valid @RequestBody UserCreateRequest request
     ) {
-        return ResponseEntity.ok(authService.register(request));
+        log.info("Process: Incoming registration request. Username: {}, Email: {}", request.getUsername(), request.getEmail());
+        AuthResponse response = authService.register(request);
+        log.info("Process: Registration successful. Token generated for user: {}", response.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -97,6 +103,9 @@ public class AuthController {
             )
             @Valid @RequestBody AuthRequest request
     ) {
-        return ResponseEntity.ok(authService.authenticate(request));
+        log.info("Process: Incoming login request. Username: {}", request.getUsername());
+        AuthResponse response = authService.authenticate(request);
+        log.info("Process: Login successful. Token generated for user: {}", response.getUsername());
+        return ResponseEntity.ok(response);
     }
 }

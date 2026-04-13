@@ -69,7 +69,7 @@ public class ReservationControllerSecurityTest {
         pitchId = pitch.getId();
 
         // Register User 1
-        String req1 = "{\"username\":\"user1\",\"email\":\"user1@test.com\",\"password\":\"pass1\",\"phoneNumber\":\"111\"}";
+        String req1 = "{\"username\":\"user1\",\"email\":\"user1@test.com\",\"password\":\"StrongPass1_\",\"phoneNumber\":\"111\"}";
         String res1 = mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(req1))
@@ -79,7 +79,7 @@ public class ReservationControllerSecurityTest {
         user1Id = userRepository.findByUsername("user1").get().getId();
 
         // Register User 2
-        String req2 = "{\"username\":\"user2\",\"email\":\"user2@test.com\",\"password\":\"pass2\",\"phoneNumber\":\"222\"}";
+        String req2 = "{\"username\":\"user2\",\"email\":\"user2@test.com\",\"password\":\"StrongPass2_\",\"phoneNumber\":\"222\"}";
         String res2 = mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(req2))
