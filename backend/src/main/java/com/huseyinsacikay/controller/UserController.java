@@ -1,6 +1,7 @@
 package com.huseyinsacikay.controller;
 
 import com.huseyinsacikay.dto.response.UserResponse;
+import com.huseyinsacikay.dto.request.UserUpdateRequest;
 import com.huseyinsacikay.handler.ApiError;
 import com.huseyinsacikay.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -157,7 +158,7 @@ public class UserController {
     })
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID id,
-            @jakarta.validation.Valid @RequestBody com.huseyinsacikay.dto.request.UserUpdateRequest request
+            @jakarta.validation.Valid @RequestBody UserUpdateRequest request
     ) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }

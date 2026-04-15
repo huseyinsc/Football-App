@@ -15,6 +15,7 @@ public enum MessageType {
     VALIDATION_ERROR("1009", "Request validation failed"),
     AUTHENTICATION_REQUIRED("1010", "Authentication is required to access this resource"),
     INVALID_CREDENTIALS("1011", "Invalid username or password"),
+    RESERVATION_NOT_JOINABLE("1012", "Reservation is not joinable with its current state"),
     GENERAL_EXCEPTION("9999", "An unexpected error occurred");
 
     private final String code;

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.huseyinsacikay.service.ReservationService;
@@ -52,7 +53,7 @@ public class PitchController {
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<PitchResponse> createPitch(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            @Parameter(
                     required = true,
                     description = "Pitch creation payload",
                     content = @Content(

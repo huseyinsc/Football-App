@@ -1,11 +1,13 @@
 package com.huseyinsacikay.service.impl;
 
 import com.huseyinsacikay.dto.request.ReservationCreateRequest;
+import com.huseyinsacikay.dto.request.ReservationUpdateRequest;
 import com.huseyinsacikay.dto.response.ReservationResponse;
+import com.huseyinsacikay.dto.response.UserResponse;
 import com.huseyinsacikay.entity.Pitch;
-import com.huseyinsacikay.entity.Role;
 import com.huseyinsacikay.entity.Reservation;
 import com.huseyinsacikay.entity.ReservationStatus;
+import com.huseyinsacikay.entity.ReservationParticipant;
 import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.exception.BadRequestException;
 import com.huseyinsacikay.exception.ConflictException;
@@ -13,6 +15,7 @@ import com.huseyinsacikay.exception.MessageType;
 import com.huseyinsacikay.exception.NotFoundException;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.repository.ReservationRepository;
+import com.huseyinsacikay.repository.ReservationParticipantRepository;
 import com.huseyinsacikay.repository.UserRepository;
 import com.huseyinsacikay.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.huseyinsacikay.security.reservation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +45,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final PitchRepository pitchRepository;
-    private final com.huseyinsacikay.repository.ReservationParticipantRepository reservationParticipantRepository;
+    private final ReservationParticipantRepository reservationParticipantRepository;
 
     @Override
     @Transactional
@@ -85,8 +89,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        com.huseyinsacikay.entity.ReservationParticipant participant = com.huseyinsacikay.entity.ReservationParticipant
-                .builder()
+        ReservationParticipant participant = ReservationParticipant.builder()
                 .reservation(savedReservation)
                 .user(user)
                 .isOrganizer(true)
@@ -101,7 +104,11 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationResponse getReservationById(UUID id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
-        authorizeReservationAccess(reservation);
+        authorizeReservationAccess(
+                reservation,
+                ReservationAccessCheckers.ADMIN,
+                ReservationAccessCheckers.PARTICIPANT
+        );
         return mapToResponse(reservation);
     }
 
@@ -118,12 +125,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<com.huseyinsacikay.dto.response.UserResponse> getReservationUsers(UUID reservationId) {
+    public List<UserResponse> getReservationUsers(UUID reservationId) {
         if (!reservationRepository.existsById(reservationId)) {
             throw new NotFoundException(MessageType.NO_RECORD_EXIST);
         }
         return reservationParticipantRepository.findByReservationId(reservationId).stream()
-                .map(rp -> com.huseyinsacikay.dto.response.UserResponse.builder()
+                .map(rp -> UserResponse.builder()
                         .id(rp.getUser().getId())
                         .username(rp.getUser().getUsername())
                         .email(rp.getUser().getEmail())
@@ -137,8 +144,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationResponse updateReservation(UUID id,
-            com.huseyinsacikay.dto.request.ReservationUpdateRequest request) {
+    public ReservationResponse updateReservation(UUID id, ReservationUpdateRequest request) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
@@ -209,8 +215,9 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
         if (reservation.getStatus() != ReservationStatus.PENDING
-                && reservation.getStatus() != ReservationStatus.CONFIRMED) {
-            throw new ConflictException(MessageType.RESERVATION_NOT_CANCELLABLE);
+                && reservation.getStatus() != ReservationStatus.CONFIRMED
+        ) {
+            throw new ConflictException(MessageType.RESERVATION_NOT_JOINABLE);
         }
 
         User currentUser = getCurrentUser();
@@ -225,8 +232,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new ConflictException(MessageType.PITCH_NOT_AVAILABLE);
         }
 
-        com.huseyinsacikay.entity.ReservationParticipant participant = com.huseyinsacikay.entity.ReservationParticipant
-                .builder()
+        ReservationParticipant participant = ReservationParticipant.builder()
                 .reservation(reservation)
                 .user(currentUser)
                 .isOrganizer(false)
@@ -244,7 +250,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
-        authorizeReservationAccess(reservation);
+        authorizeReservationAccess(reservation, ReservationAccessCheckers.ADMIN);
 
         if (reservation.getStatus() == ReservationStatus.COMPLETED
                 || reservation.getStatus() == ReservationStatus.EXPIRED) {
@@ -280,12 +286,23 @@ public class ReservationServiceImpl implements ReservationService {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    private void authorizeReservationAccess(Reservation reservation) {
+    private void authorizeReservationAccess(
+            Reservation reservation, ReservationAccessChecker... allowedCheckers
+    ) {
         User currentUser = getCurrentUser();
-        if (currentUser.getRole() == Role.ADMIN) {
+
+        // Organizer is always allowed (default rule)
+        if (reservation.getOrganizer().getId().equals(currentUser.getId())) {
             return;
         }
-        if (!reservation.getOrganizer().getId().equals(currentUser.getId())) {
+
+        ReservationAuthorizationContext context = new ReservationAuthorizationContext(
+                reservation, currentUser, reservationParticipantRepository);
+
+        boolean allowed = java.util.Arrays.stream(allowedCheckers)
+                .anyMatch(checker -> checker.hasAccess(context));
+
+        if (!allowed) {
             throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
         }
     }

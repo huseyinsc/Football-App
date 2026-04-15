@@ -1,7 +1,9 @@
 package com.huseyinsacikay.controller;
 
 import com.huseyinsacikay.dto.request.ReservationCreateRequest;
+import com.huseyinsacikay.dto.request.ReservationUpdateRequest;
 import com.huseyinsacikay.dto.response.ReservationResponse;
+import com.huseyinsacikay.dto.response.UserResponse;
 import com.huseyinsacikay.handler.ApiError;
 import com.huseyinsacikay.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,13 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.UUID;
 import java.util.List;
@@ -32,7 +33,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    @org.springframework.security.access.prepost.PreAuthorize("#request.userId == principal.id or hasRole('ADMIN')")
+    @PreAuthorize("#request.userId == principal.id or hasRole('ADMIN')")
     @Operation(
             summary = "Create a reservation",
             description = "Creates a new pending reservation when the pitch is available and the requested time does not overlap another active booking.",
@@ -53,7 +54,7 @@ public class ReservationController {
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<ReservationResponse> createReservation(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            @Parameter(
                     required = true,
                     description = "Reservation payload",
                     content = @Content(
@@ -100,7 +101,7 @@ public class ReservationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users listed successfully")
     })
-    public ResponseEntity<List<com.huseyinsacikay.dto.response.UserResponse>> getReservationUsers(@PathVariable UUID id) {
+    public ResponseEntity<List<UserResponse>> getReservationUsers(@PathVariable UUID id) {
         return ResponseEntity.ok(reservationService.getReservationUsers(id));
     }
 
@@ -148,7 +149,7 @@ public class ReservationController {
     })
     public ResponseEntity<ReservationResponse> updateReservation(
             @PathVariable UUID id,
-            @Valid @RequestBody com.huseyinsacikay.dto.request.ReservationUpdateRequest request
+            @Valid @RequestBody ReservationUpdateRequest request
     ) {
         return ResponseEntity.ok(reservationService.updateReservation(id, request));
     }

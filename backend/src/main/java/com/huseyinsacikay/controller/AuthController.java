@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = StringApiError.class)))
     })
     public ResponseEntity<AuthResponse> register(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            @Parameter(
                     required = true,
                     description = "Registration payload",
                     content = @Content(
@@ -84,7 +85,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = StringApiError.class)))
     })
     public ResponseEntity<AuthResponse> authenticate(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            @Parameter(
                     required = true,
                     description = "Login payload",
                     content = @Content(

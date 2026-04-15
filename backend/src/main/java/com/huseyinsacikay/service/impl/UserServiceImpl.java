@@ -1,6 +1,7 @@
 package com.huseyinsacikay.service.impl;
 
 import com.huseyinsacikay.dto.request.UserCreateRequest;
+import com.huseyinsacikay.dto.request.UserUpdateRequest;
 import com.huseyinsacikay.dto.response.UserResponse;
 import com.huseyinsacikay.entity.Role;
 import com.huseyinsacikay.entity.User;
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse updateUser(UUID id, com.huseyinsacikay.dto.request.UserUpdateRequest request) {
+    public UserResponse updateUser(UUID id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
 
