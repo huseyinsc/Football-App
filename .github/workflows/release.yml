@@ -42,22 +42,30 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
                   GH_TOKEN: ${{ secrets.GH_TOKEN }}
               run: |
-                  npx semantic-release
-                  echo "next_version=$(git describe --tags --abbrev=0 | sed 's/^v//')" >> $GITHUB_OUTPUT
+                    # Semantic Release çıktısını yakala
+                    npx semantic-release || true
+                
+                    # Son tag'i al
+                    LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                    if [ -n "$LATEST_TAG" ]; then
+                        echo "next_version=${LATEST_TAG#v}" >> $GITHUB_OUTPUT
+                        echo "has_release=true" >> $GITHUB_OUTPUT
+                    else
+                        echo "has_release=false" >> $GITHUB_OUTPUT
+                    fi
 
             - name: Create GitHub Release
-              if: steps.semantic.outputs.next_version != ''
+              if: steps.semantic.outputs.has_release == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GH_TOKEN }}
               run: |
                   VERSION="v${{ steps.semantic.outputs.next_version }}"
-                  MAJOR=$(echo $VERSION | cut -d. -f1 | sed 's/^v//')
-                  if [ "$MAJOR" -ge 1 ]; then
-                      echo "Creating GitHub Release for $VERSION"
+                  # GitHub release zaten var mı kontrol et
+                  if ! gh release view "$VERSION" &>/dev/null; then
                       gh release create "$VERSION" \
                           --title "$VERSION" \
                           --notes "Release $VERSION" \
                           --generate-notes
                   else
-                      echo "Version < 1.0.0. Tag created but GitHub release skipped."
+                      echo "Release $VERSION already exists"
                   fi
