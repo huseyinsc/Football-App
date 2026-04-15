@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/huseyinsc/Football-App/compare/v1.0.0...v1.0.1) (2026-04-15)
+
+
+### Bug Fixes
+
+* **security:** properly expose public pitch endpoints and resolve related auth/swagger issues ([2c788b2](https://github.com/huseyinsc/Football-App/commit/2c788b2fbbc223ab85a951364a7356f4ed54cf2b))
+
 # [1.0.0](https://github.com/huseyinsc/Football-App/compare/v0.9.2...v1.0.0) (2026-04-10)
 
 
