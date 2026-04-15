@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/huseyinsc/Football-App/compare/v1.0.1...v1.1.0) (2026-04-15)
+
+
+### Features
+
+* **reservation:** finalize lifecycle, update endpoints and add seed data ([499fb02](https://github.com/huseyinsc/Football-App/commit/499fb02827a640b43abe22d7830a0d83a25f8063))
+
 ## [1.0.1](https://github.com/huseyinsc/Football-App/compare/v1.0.0...v1.0.1) (2026-04-15)
 
 
