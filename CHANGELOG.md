@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/huseyinsc/Football-App/compare/v1.1.0...v1.1.1) (2026-04-15)
+
+
+### Bug Fixes
+
+* **ci:** remove duplicate GitHub release creation ([65165d1](https://github.com/huseyinsc/Football-App/commit/65165d1691b369d532afb70fb83e3abe8d427916))
+
 # [1.1.0](https://github.com/huseyinsc/Football-App/compare/v1.0.1...v1.1.0) (2026-04-15)
 
 
