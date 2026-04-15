@@ -48,15 +48,17 @@ The current test setup now uses:
 
 The roadmap is now complete through all 10 phases. The backend currently ships with:
 
-- A first stable release baseline at version `1.0.0`.
-- PostgreSQL + Flyway schema management for production data.
+- A stable release baseline updated to version `1.1.0`.
+- PostgreSQL + Flyway schema management for production data, including initial data seed migration for admins and pitches.
 - JWT-secured auth and reservation APIs.
 - A unified `ApiError` response contract for validation, authorization, and authentication failures.
 - Generated Swagger UI for local exploration at `http://localhost:8080/swagger-ui.html`.
 - OpenAPI 3.0 JSON and YAML exports that can be imported directly into Postman.
-- **v1.0.0 Release Enhancements:**
-    - Multi-user reservation support with `ReservationParticipant` entity.
-    - Complete API coverage with `PitchController` and `UserController`.
+- **v1.1.0 Release Enhancements:**
+    - Multi-user reservation support with endpoint to join existing bookings.
+    - Complete API coverage with PUT endpoints for Pitch, User, and Reservation (including Pitch & Organizer hand-off).
+    - Intelligent `ReservationCleanupJob` auto-deletes inactive 30-day old data to conserve schema size.
+    - Robust `GlobalExceptionHandler` intercepting previously unhandled JSON parse exceptions as 400 responses.
     - Strong password validation and enhanced security.
     - Professional Swagger documentation with clean error responses.
     - Production-ready error handling with consistent logging.

@@ -4,6 +4,7 @@ CREATE TABLE reservation_participants (
     reservation_id UUID NOT NULL REFERENCES reservations(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     is_organizer BOOLEAN NOT NULL DEFAULT false,
+    is_approved BOOLEAN NOT NULL DEFAULT false,
     UNIQUE(reservation_id, user_id)
 );
 

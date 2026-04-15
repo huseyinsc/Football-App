@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -78,17 +79,12 @@ public class ReservationController {
 
     @GetMapping("/{id}")
     @Operation(
-            summary = "Get reservation by id",
-            description = "Returns a single reservation if the authenticated user owns it or has the ADMIN role.",
+            summary = "Get a reservation by ID",
+            description = "Returns the details of a specific reservation if the authenticated user owns it or has the ADMIN role.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Reservation found",
-                    content = @Content(schema = @Schema(implementation = ReservationResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
-            @ApiResponse(responseCode = "403", description = "Reservation belongs to another user",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "200", description = "Reservation returned successfully"),
             @ApiResponse(responseCode = "404", description = "Reservation not found",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
@@ -96,25 +92,16 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservationById(id));
     }
 
-    @GetMapping("/user/{userId}")
-    @org.springframework.security.access.prepost.PreAuthorize("#userId == principal.id or hasRole('ADMIN')")
+    @GetMapping("/{id}/users")
     @Operation(
-            summary = "List reservations by user",
-            description = "Returns a paginated reservation history for the selected user. Regular users can only list their own records.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            summary = "List users in a reservation",
+            description = "Returns a list of all users participating in a reservation."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Reservation page returned successfully"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
-            @ApiResponse(responseCode = "403", description = "User is not allowed to access another user's history",
-                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+            @ApiResponse(responseCode = "200", description = "Users listed successfully")
     })
-    public ResponseEntity<Page<ReservationResponse>> getReservationsByUserId(
-            @PathVariable UUID userId,
-            @ParameterObject Pageable pageable
-    ) {
-        return ResponseEntity.ok(reservationService.getReservationsByUserId(userId, pageable));
+    public ResponseEntity<List<com.huseyinsacikay.dto.response.UserResponse>> getReservationUsers(@PathVariable UUID id) {
+        return ResponseEntity.ok(reservationService.getReservationUsers(id));
     }
 
     @DeleteMapping("/{id}")
@@ -137,5 +124,52 @@ public class ReservationController {
     public ResponseEntity<Void> cancelReservation(@PathVariable UUID id) {
         reservationService.cancelReservation(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Update a reservation",
+            description = "Updates a reservation's start and end times if the authenticated user owns it.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reservation updated successfully",
+                    content = @Content(schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation or time-range error",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Reservation belongs to another user",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Reservation not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "409", description = "Overlapping reservation exists",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<ReservationResponse> updateReservation(
+            @PathVariable UUID id,
+            @Valid @RequestBody com.huseyinsacikay.dto.request.ReservationUpdateRequest request
+    ) {
+        return ResponseEntity.ok(reservationService.updateReservation(id, request));
+    }
+
+    @PostMapping("/{id}/join")
+    @Operation(
+            summary = "Join a reservation",
+            description = "Joins an existing reservation as a participant.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully joined reservation",
+                    content = @Content(schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Reservation not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "409", description = "Pitch is full or already joined",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<ReservationResponse> joinReservation(@PathVariable UUID id) {
+        return ResponseEntity.ok(reservationService.joinReservation(id));
     }
 }

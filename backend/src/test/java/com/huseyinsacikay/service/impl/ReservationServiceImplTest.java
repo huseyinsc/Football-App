@@ -45,6 +45,8 @@ class ReservationServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private PitchRepository pitchRepository;
+    @Mock
+    private com.huseyinsacikay.repository.ReservationParticipantRepository reservationParticipantRepository;
 
     @InjectMocks
     private ReservationServiceImpl reservationService;
@@ -197,19 +199,19 @@ class ReservationServiceImplTest {
     }
 
     @Test
-    void cancelReservation_ShouldThrowConflictException_WhenReservationAlreadyCompleted() {
+    void cancelReservation_ShouldDelete_WhenReservationAlreadyCompleted() {
         mockReservation.setStatus(ReservationStatus.COMPLETED);
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(mockReservation));
 
-        assertThrows(ConflictException.class, () -> reservationService.cancelReservation(reservationId));
-        verify(reservationRepository, never()).save(any(Reservation.class));
+        reservationService.cancelReservation(reservationId);
+        verify(reservationRepository).delete(mockReservation);
     }
     
     @Test
     void getReservationsByUserId_ShouldReturnPagedResponses() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Reservation> pagedReservations = new PageImpl<>(List.of(mockReservation));
-        when(reservationRepository.findByOrganizerId(userId, pageable)).thenReturn(pagedReservations);
+        when(reservationRepository.findReservationsByUserId(userId, pageable)).thenReturn(pagedReservations);
 
         Page<ReservationResponse> responses = reservationService.getReservationsByUserId(userId, pageable);
 

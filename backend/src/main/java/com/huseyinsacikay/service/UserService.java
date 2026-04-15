@@ -10,6 +10,7 @@ public interface UserService {
     UserResponse createUser(UserCreateRequest request);
     UserResponse getUserById(UUID id);
     UserResponse getUserByUsername(String username);  // ADD THIS
+    UserResponse updateUser(UUID id, com.huseyinsacikay.dto.request.UserUpdateRequest request);
     List<UserResponse> getAllUsers();
     void deleteUser(UUID id);
 }

@@ -46,7 +46,9 @@ class OpenApiDocumentationIntegrationTest {
                 .andExpect(jsonPath("$.paths['/api/v1/auth/register']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/reservations']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/reservations/{id}']").exists())
-                .andExpect(jsonPath("$.paths['/api/v1/reservations/user/{userId}']").exists());
+                .andExpect(jsonPath("$.paths['/api/v1/users/{id}/reservations']").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/pitches/{id}/reservations']").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/reservations/{id}/users']").exists());
     }
 
     @Test

@@ -11,6 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import com.huseyinsacikay.service.ReservationService;
+import com.huseyinsacikay.dto.response.ReservationResponse;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,6 +32,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final ReservationService reservationService;
 
     @GetMapping("/me")
     @Operation(
@@ -107,5 +113,52 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/reservations")
+    @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+    @Operation(
+            summary = "List reservations by user",
+            description = "Returns a paginated reservation history. Users can only list their own records.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reservation page returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "User is not allowed to access another user's history",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByUserId(
+            @PathVariable UUID id,
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(reservationService.getReservationsByUserId(id, pageable));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+    @Operation(
+            summary = "Update user profile",
+            description = "Updates a user's profile information. Users can only update their own profile unless they have ADMIN role.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User profile updated successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "You can only update your own profile",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @jakarta.validation.Valid @RequestBody com.huseyinsacikay.dto.request.UserUpdateRequest request
+    ) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 }

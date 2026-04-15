@@ -85,6 +85,22 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError<String>> handleHttpMessageNotReadableException(
+            org.springframework.http.converter.HttpMessageNotReadableException ex,
+            HttpServletRequest request
+    ) {
+        log.debug("HTTP message not readable on {}: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiErrorFactory.create(
+                        MessageType.VALIDATION_ERROR.getCode(),
+                        "Malformed JSON request or invalid data format",
+                        request.getRequestURI(),
+                        HttpStatus.BAD_REQUEST
+                ));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError<String>> handleUnexpectedException(Exception ex, HttpServletRequest request) {
         log.error("Unexpected exception for {}", request.getRequestURI(), ex);

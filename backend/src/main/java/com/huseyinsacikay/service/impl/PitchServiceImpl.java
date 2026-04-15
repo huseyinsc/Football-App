@@ -43,6 +43,20 @@ public class PitchServiceImpl implements PitchService {
     }
 
     @Override
+    public PitchResponse updatePitch(UUID id, PitchCreateRequest request) {
+        Pitch pitch = pitchRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
+        
+        pitch.setName(request.getName());
+        pitch.setLocation(request.getLocation());
+        pitch.setHourlyPrice(request.getHourlyPrice());
+        pitch.setCapacity(request.getCapacity());
+        
+        Pitch updatedPitch = pitchRepository.save(pitch);
+        return mapToResponse(updatedPitch);
+    }
+
+    @Override
     public Page<PitchResponse> getAllPitches(Pageable pageable) {
         return pitchRepository.findAll(pageable)
                 .map(this::mapToResponse);

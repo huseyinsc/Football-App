@@ -121,14 +121,14 @@ public class ReservationControllerSecurityTest {
 
     @Test
     void userCannotGetReservationsOfAnotherUser() throws Exception {
-        mockMvc.perform(get("/api/v1/reservations/user/" + user2Id)
+        mockMvc.perform(get("/api/v1/users/" + user2Id + "/reservations")
                 .header("Authorization", "Bearer " + user1Token))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void userCanGetOwnReservations() throws Exception {
-        mockMvc.perform(get("/api/v1/reservations/user/" + user1Id)
+        mockMvc.perform(get("/api/v1/users/" + user1Id + "/reservations")
                 .header("Authorization", "Bearer " + user1Token))
                 .andExpect(status().isOk());
     }

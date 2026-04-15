@@ -27,15 +27,17 @@ public class ReservationCleanupJob {
     @Transactional
     public void markExpiredReservations() {
         log.info("Starting scheduled job: markExpiredReservations");
-        
+
         LocalDateTime now = LocalDateTime.now();
-        List<Reservation> expiredReservations = reservationRepository.findByStatusAndStartTimeBefore(ReservationStatus.PENDING, now);
+        List<Reservation> expiredReservations = reservationRepository
+                .findByStatusAndStartTimeBefore(ReservationStatus.PENDING, now);
 
         if (!expiredReservations.isEmpty()) {
             expiredReservations.forEach(reservation -> {
                 reservation.setStatus(ReservationStatus.EXPIRED);
                 // Here we would typically also send an email/notification to the user
-                log.info("Reservation {} marked as EXPIRED for user {}", reservation.getId(), reservation.getOrganizer().getUsername());
+                log.info("Reservation {} marked as EXPIRED for user {}", reservation.getId(),
+                        reservation.getOrganizer().getUsername());
             });
 
             reservationRepository.saveAll(expiredReservations);
@@ -43,5 +45,37 @@ public class ReservationCleanupJob {
         } else {
             log.info("No expired reservations found.");
         }
+    }
+
+    /**
+     * This job runs every day to hard delete reservations
+     * that have been expired or completed for over 30 days.
+     */
+    @Scheduled(cron = "0 0 4 * * ?") // Runs at 4 AM every day
+    @Transactional
+    public void deleteOldReservations() {
+        log.info("Starting scheduled job: deleteOldReservations");
+
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusDays(30);
+
+        List<Reservation> oldExpired = reservationRepository
+                .findByStatusAndStartTimeBefore(ReservationStatus.EXPIRED, oneMonthAgo);
+        
+        List<Reservation> oldCompleted = reservationRepository
+                .findByStatusAndStartTimeBefore(ReservationStatus.COMPLETED, oneMonthAgo);
+
+        int totalDeleted = 0;
+        
+        if (!oldExpired.isEmpty()) {
+            reservationRepository.deleteAll(oldExpired);
+            totalDeleted += oldExpired.size();
+        }
+        
+        if (!oldCompleted.isEmpty()) {
+            reservationRepository.deleteAll(oldCompleted);
+            totalDeleted += oldCompleted.size();
+        }
+
+        log.info("Successfully deleted {} old reservations.", totalDeleted);
     }
 }

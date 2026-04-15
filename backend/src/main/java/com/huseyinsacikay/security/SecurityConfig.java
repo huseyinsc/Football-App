@@ -30,7 +30,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(req -> req.requestMatchers(
                                                 org.springframework.http.HttpMethod.GET,
                                                 "/api/v1/pitches",
-                                                "/api/v1/pitches/**").permitAll()
+                                                "/api/v1/pitches/**",
+                                                "/api/v1/reservations/*/users").permitAll()
                                                 .requestMatchers(
                                                                 "/api/v1/auth/**",
                                                                 "/v3/api-docs",

@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import com.huseyinsacikay.service.ReservationService;
+import com.huseyinsacikay.dto.response.ReservationResponse;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import java.util.UUID;
 public class PitchController {
 
     private final PitchService pitchService;
+    private final ReservationService reservationService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -100,6 +103,47 @@ public class PitchController {
     })
     public ResponseEntity<PitchResponse> getPitchById(@PathVariable UUID id) {
         return ResponseEntity.ok(pitchService.getPitchById(id));
+    }
+
+    @GetMapping("/{id}/reservations")
+    @Operation(
+            summary = "List reservations for a pitch",
+            description = "Returns a paginated reservation history for the selected pitch. Public endpoint."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reservation page returned successfully")
+    })
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByPitchId(
+            @PathVariable UUID id,
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(reservationService.getReservationsByPitchId(id, pageable));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Update a pitch",
+            description = "Updates an existing pitch venue. ADMIN role required.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pitch updated successfully",
+                    content = @Content(schema = @Schema(implementation = PitchResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN users can update pitches",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Pitch not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<PitchResponse> updatePitch(
+            @PathVariable UUID id,
+            @Valid @RequestBody PitchCreateRequest request
+    ) {
+        return ResponseEntity.ok(pitchService.updatePitch(id, request));
     }
 
     @DeleteMapping("/{id}")

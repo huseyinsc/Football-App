@@ -10,6 +10,9 @@ import com.huseyinsacikay.exception.NotFoundException;
 import com.huseyinsacikay.repository.UserRepository;
 import com.huseyinsacikay.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +59,41 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
         return mapToResponse(user);
+    }
+
+    @Override
+    public UserResponse updateUser(UUID id, com.huseyinsacikay.dto.request.UserUpdateRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User currentUser)) {
+            throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
+        }
+
+        if (currentUser.getId().equals(user.getId())) {
+            // Updating own profile (cannot change role)
+            if (request.getUsername() != null && !user.getUsername().equals(request.getUsername())) {
+                if (userRepository.existsByUsername(request.getUsername())) throw new ConflictException(MessageType.USER_ALREADY_EXISTS);
+                user.setUsername(request.getUsername());
+            }
+            if (request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
+                if (userRepository.existsByEmail(request.getEmail())) throw new ConflictException(MessageType.USER_ALREADY_EXISTS);
+                user.setEmail(request.getEmail());
+            }
+            if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
+            
+        } else if (currentUser.getRole() == Role.ADMIN) {
+            // Admin updating someone else (can only change role)
+            if (request.getRole() != null) {
+                user.setRole(request.getRole());
+            }
+        } else {
+            throw new AccessDeniedException(MessageType.ACCESS_DENIED.getMessage());
+        }
+
+        User updatedUser = userRepository.save(user);
+        return mapToResponse(updatedUser);
     }
 
     @Override

@@ -28,4 +28,8 @@ public class ReservationParticipant {
     @Column(name = "is_organizer")
     @Builder.Default
     private boolean isOrganizer = false;
+
+    @Column(name = "is_approved")
+    @Builder.Default
+    private boolean isApproved = false;
 }
