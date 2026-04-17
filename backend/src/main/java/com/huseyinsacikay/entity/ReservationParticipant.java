@@ -25,11 +25,7 @@ public class ReservationParticipant {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "is_organizer")
+    @Column(name = "is_organizer", nullable = false)
     @Builder.Default
     private boolean isOrganizer = false;
-
-    @Column(name = "is_approved")
-    @Builder.Default
-    private boolean isApproved = false;
 }

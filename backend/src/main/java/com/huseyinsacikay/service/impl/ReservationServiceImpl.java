@@ -93,7 +93,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .reservation(savedReservation)
                 .user(user)
                 .isOrganizer(true)
-                .isApproved(true)
                 .build();
         reservationParticipantRepository.save(participant);
 
@@ -236,7 +235,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .reservation(reservation)
                 .user(currentUser)
                 .isOrganizer(false)
-                .isApproved(false)
                 .build();
 
         reservationParticipantRepository.save(participant);
