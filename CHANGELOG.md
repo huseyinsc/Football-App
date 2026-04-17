@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/huseyinsc/Football-App/compare/v1.1.0...v1.2.0) (2026-04-17)
+
+
+### Bug Fixes
+
+* **ci:** remove duplicate GitHub release creation ([65165d1](https://github.com/huseyinsc/Football-App/commit/65165d1691b369d532afb70fb83e3abe8d427916))
+
+
+### Features
+
+* **api:** add contacts and match-requests endpoints with join policy enforcement ([492e779](https://github.com/huseyinsc/Football-App/commit/492e779c81a1ee65b79bd410d65c82ca773c27fa))
+* **domain:** implement anti-spam contact system and match request schema ([f516268](https://github.com/huseyinsc/Football-App/commit/f51626856ef2c937e467a7c56ae8bc03b220c746))
+
 ## [1.1.1](https://github.com/huseyinsc/Football-App/compare/v1.1.0...v1.1.1) (2026-04-15)
 
 
