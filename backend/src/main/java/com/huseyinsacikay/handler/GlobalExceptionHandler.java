@@ -101,6 +101,22 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(org.springframework.dao.InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ApiError<String>> handleInvalidDataAccessException(
+            org.springframework.dao.InvalidDataAccessApiUsageException ex,
+            HttpServletRequest request
+    ) {
+        log.debug("Invalid data access usage on {}: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiErrorFactory.create(
+                        MessageType.VALIDATION_ERROR.getCode(),
+                        "Invalid sort or query parameter. Use format: sort=fieldName,asc|desc",
+                        request.getRequestURI(),
+                        HttpStatus.BAD_REQUEST
+                ));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError<String>> handleUnexpectedException(Exception ex, HttpServletRequest request) {
         log.error("Unexpected exception for {}", request.getRequestURI(), ex);

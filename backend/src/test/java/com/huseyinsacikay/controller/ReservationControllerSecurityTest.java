@@ -7,6 +7,12 @@ import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.repository.ReservationRepository;
 import com.huseyinsacikay.repository.UserRepository;
+import com.huseyinsacikay.repository.ReservationParticipantRepository;
+import com.huseyinsacikay.repository.MatchRequestRepository;
+import com.huseyinsacikay.repository.FriendRequestRepository;
+import com.huseyinsacikay.repository.UserContactRepository;
+import com.huseyinsacikay.repository.UserBlockRepository;
+import com.huseyinsacikay.repository.ContactStrikeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +48,13 @@ public class ReservationControllerSecurityTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired private ReservationParticipantRepository participantRepository;
+    @Autowired private MatchRequestRepository matchRequestRepository;
+    @Autowired private FriendRequestRepository friendRequestRepository;
+    @Autowired private UserContactRepository userContactRepository;
+    @Autowired private UserBlockRepository userBlockRepository;
+    @Autowired private ContactStrikeRepository contactStrikeRepository;
+
     private String user1Token;
     private String user2Token;
     private UUID user1Id;
@@ -54,6 +67,12 @@ public class ReservationControllerSecurityTest {
                 .apply(springSecurity())
                 .build();
 
+        participantRepository.deleteAll();
+        matchRequestRepository.deleteAll();
+        userContactRepository.deleteAll();
+        userBlockRepository.deleteAll();
+        contactStrikeRepository.deleteAll();
+        friendRequestRepository.deleteAll();
         reservationRepository.deleteAll();
         pitchRepository.deleteAll();
         userRepository.deleteAll();

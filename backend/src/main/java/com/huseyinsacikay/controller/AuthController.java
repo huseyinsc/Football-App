@@ -39,9 +39,32 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User registered successfully",
                     content = @Content(schema = @Schema(implementation = AuthResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ValidationApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ValidationApiError.class),
+                            examples = @ExampleObject(name = "Validation Error", value = """
+                                    {
+                                      "status": 400,
+                                      "exception": {
+                                        "code": "1009",
+                                        "path": "/api/v1/auth/register",
+                                        "message": {
+                                          "username": "Username must be between 3 and 20 characters",
+                                          "password": "Password is required"
+                                        }
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "409", description = "Username or email already exists",
-                    content = @Content(schema = @Schema(implementation = StringApiError.class)))
+                    content = @Content(schema = @Schema(implementation = StringApiError.class),
+                            examples = @ExampleObject(name = "Conflict Error", value = """
+                                    {
+                                      "status": 409,
+                                      "exception": {
+                                        "code": "1002",
+                                        "path": "/api/v1/auth/register",
+                                        "message": "User already exists"
+                                      }
+                                    }
+                                    """)))
     })
     public ResponseEntity<AuthResponse> register(
             @Parameter(
@@ -80,7 +103,19 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
                     content = @Content(schema = @Schema(implementation = AuthResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ValidationApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ValidationApiError.class),
+                            examples = @ExampleObject(name = "Validation Error", value = """
+                                    {
+                                      "status": 400,
+                                      "exception": {
+                                        "code": "1009",
+                                        "path": "/api/v1/auth/login",
+                                        "message": {
+                                          "username": "Username is required"
+                                        }
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials",
                     content = @Content(schema = @Schema(implementation = StringApiError.class)))
     })

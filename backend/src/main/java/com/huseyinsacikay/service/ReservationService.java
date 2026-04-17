@@ -14,7 +14,6 @@ public interface ReservationService {
     Page<ReservationResponse> getReservationsByUserId(UUID userId, Pageable pageable);
     Page<ReservationResponse> getReservationsByPitchId(UUID pitchId, Pageable pageable);
     ReservationResponse updateReservation(UUID id, com.huseyinsacikay.dto.request.ReservationUpdateRequest request);
-    ReservationResponse joinReservation(UUID reservationId);
     List<com.huseyinsacikay.dto.response.UserResponse> getReservationUsers(UUID reservationId);
     void cancelReservation(UUID id);
 }

@@ -55,11 +55,13 @@ The roadmap is now complete through all 10 phases. The backend currently ships w
 - Generated Swagger UI for local exploration at `http://localhost:8080/swagger-ui.html`.
 - OpenAPI 3.0 JSON and YAML exports that can be imported directly into Postman.
 
-## 🚀 v1.2.0 Coming Enhancements:
+## 🚀 v1.2.0 Release Enhancements:
 - **Friends & Contacts Network:** Users can now discover, request, and add each other as friends to build their personal football network.
-- **Strict Anti-Spam System:** Bidirectional contacts flow that automatically 2-strike blocks users for unaccepted friend requests to prevent spam.
-- **Match Request Workflow:** Proper isolated requests & invites system via `match_requests` separating confirmed players from pending ones.
-- **Join Policies:** Configurations mapping reservations to be `PUBLIC`, `FRIENDS_ONLY` or `INVITE_ONLY`.
+- **Strict Anti-Spam System:** bidirectional contact structure that automatically 2-strike blocks persistent unaccepted friend requests to prevent spam.
+- **Match Request Workflow:** Decoupled invitation/join system via `match_requests` ensuring only confirmed participants are added to reservations.
+- **Join Policies:** Per-match configuration allowing `PUBLIC`, `FRIENDS_ONLY` (organizer's contacts), or `INVITE_ONLY` participation.
+- **Enhanced Pagination:** Full paging support for User Management and all Contact/Match-Request lists.
+- **Premium API Documentation:** Detailed Swagger/OpenAPI documentation with specific error codes, example response bodies, and simplified Postman integration.
 
 - **v1.1.0 Release Enhancements:**
     - Multi-user reservation support with endpoint to join existing bookings.

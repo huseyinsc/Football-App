@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,9 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI footballReservationOpenApi() {
+        // Global security requirement - defined only in root level
+        SecurityRequirement globalSecurityRequirement = new SecurityRequirement().addList("bearerAuth");
+
         return new OpenAPI(SpecVersion.V30)
                 .openapi("3.0.1")
                 .info(new Info()
@@ -66,7 +70,8 @@ public class OpenApiConfig {
                                         .description("JWT Bearer token obtained from authentication endpoints. Format: Bearer <token>"))
                         .addSchemas("ValidationApiError", createValidationApiErrorSchema())
                         .addSchemas("StringApiError", createStringApiErrorSchema())
-                );
+                )
+                .addSecurityItem(globalSecurityRequirement);  // only once in root level
     }
 
     @Bean
@@ -111,6 +116,10 @@ public class OpenApiConfig {
                                         .content(new Content().addMediaType("application/json",
                                                 new MediaType().schema(new Schema().$ref("#/components/schemas/StringApiError")))));
                     }
+                    
+                    // CRITICAL: Remove security requirements from sub-paths
+                    // This way they appear as "inherit auth from parent" in Postman
+                    operation.setSecurity(null);
                 });
             });
         };

@@ -6,6 +6,12 @@ import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.repository.PitchRepository;
 import com.huseyinsacikay.repository.ReservationRepository;
 import com.huseyinsacikay.repository.UserRepository;
+import com.huseyinsacikay.repository.ReservationParticipantRepository;
+import com.huseyinsacikay.repository.MatchRequestRepository;
+import com.huseyinsacikay.repository.FriendRequestRepository;
+import com.huseyinsacikay.repository.UserContactRepository;
+import com.huseyinsacikay.repository.UserBlockRepository;
+import com.huseyinsacikay.repository.ContactStrikeRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +49,13 @@ class ApiErrorContractIntegrationTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired private ReservationParticipantRepository participantRepository;
+    @Autowired private MatchRequestRepository matchRequestRepository;
+    @Autowired private FriendRequestRepository friendRequestRepository;
+    @Autowired private UserContactRepository userContactRepository;
+    @Autowired private UserBlockRepository userBlockRepository;
+    @Autowired private ContactStrikeRepository contactStrikeRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -57,6 +70,12 @@ class ApiErrorContractIntegrationTest {
                 .apply(springSecurity())
                 .build();
 
+        participantRepository.deleteAll();
+        matchRequestRepository.deleteAll();
+        userContactRepository.deleteAll();
+        userBlockRepository.deleteAll();
+        contactStrikeRepository.deleteAll();
+        friendRequestRepository.deleteAll();
         reservationRepository.deleteAll();
         pitchRepository.deleteAll();
         userRepository.deleteAll();
@@ -150,6 +169,28 @@ class ApiErrorContractIntegrationTest {
                 .andExpect(jsonPath("$.exception.code").value("1009"))
                 .andExpect(jsonPath("$.exception.path").value("/api/v1/reservations"))
                 .andExpect(jsonPath("$.exception.message.startTime").value("Start time must be in the future"));
+    }
+
+    @Test
+    void invalidSortParameter_SwaggerStyle_ShouldReturn400NotServerError() throws Exception {
+        // Swagger UI sends sort=["asc"] which is not a valid field name.
+        // Previously this caused a 500. Must return 400 Bad Request.
+        mockMvc.perform(get("/api/v1/contacts/requests/outgoing")
+                        .param("sort", "[\"asc\"]")
+                        .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.exception.code").value("1009"))
+                .andExpect(jsonPath("$.exception.message").value(
+                        "Invalid sort or query parameter. Use format: sort=fieldName,asc|desc"));
+    }
+
+    @Test
+    void validSortParameter_ShouldReturn200() throws Exception {
+        mockMvc.perform(get("/api/v1/contacts/requests/outgoing")
+                        .param("sort", "createdAt,asc")
+                        .header("Authorization", "Bearer " + user1Token))
+                .andExpect(status().isOk());
     }
 
     private String loginAndGetToken(String username, String password) throws Exception {

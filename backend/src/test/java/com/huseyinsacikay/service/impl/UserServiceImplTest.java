@@ -16,6 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,13 +105,16 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getAllUsers_ShouldReturnListOfUserResponses() {
-        when(userRepository.findAll()).thenReturn(List.of(mockUser));
+    void getAllUsers_ShouldReturnPageOfUserResponses() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> usersPage = new PageImpl<>(List.of(mockUser), pageable, 1);
+        when(userRepository.findAll(pageable)).thenReturn(usersPage);
 
-        List<UserResponse> responses = userService.getAllUsers();
+        Page<UserResponse> responses = userService.getAllUsers(pageable);
 
         assertNotNull(responses);
-        assertEquals(1, responses.size());
+        assertEquals(1, responses.getTotalElements());
+        assertEquals("testuser", responses.getContent().get(0).getUsername());
     }
 
     @Test

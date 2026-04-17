@@ -209,41 +209,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationResponse joinReservation(UUID reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));
-
-        if (reservation.getStatus() != ReservationStatus.PENDING
-                && reservation.getStatus() != ReservationStatus.CONFIRMED
-        ) {
-            throw new ConflictException(MessageType.RESERVATION_NOT_JOINABLE);
-        }
-
-        User currentUser = getCurrentUser();
-
-        if (reservationParticipantRepository.findByReservationIdAndUserId(reservationId, currentUser.getId())
-                .isPresent()) {
-            throw new ConflictException(MessageType.USER_ALREADY_EXISTS);
-        }
-
-        int currentCount = reservationParticipantRepository.countByReservationId(reservationId);
-        if (currentCount >= reservation.getPitch().getCapacity()) {
-            throw new ConflictException(MessageType.PITCH_NOT_AVAILABLE);
-        }
-
-        ReservationParticipant participant = ReservationParticipant.builder()
-                .reservation(reservation)
-                .user(currentUser)
-                .isOrganizer(false)
-                .build();
-
-        reservationParticipantRepository.save(participant);
-
-        return mapToResponse(reservation);
-    }
-
-    @Override
-    @Transactional
     public void cancelReservation(UUID id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageType.NO_RECORD_EXIST));

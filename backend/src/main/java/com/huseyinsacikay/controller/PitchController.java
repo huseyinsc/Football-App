@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/pitches")
 @RequiredArgsConstructor
 @Tag(name = "Pitches", description = "Protected pitch management endpoints. Only ADMIN users can create/delete pitches.")
+@SecurityRequirement(name = "bearerAuth")
 public class PitchController {
 
     private final PitchService pitchService;
@@ -39,18 +40,37 @@ public class PitchController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Create a new pitch",
-            description = "Creates a new pitch venue. ADMIN role required.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            description = "Creates a new pitch venue. ADMIN role required."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pitch created successfully",
                     content = @Content(schema = @Schema(implementation = PitchResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Validation Error", value = """
+                                    {
+                                      "status": 400,
+                                      "exception": {
+                                        "code": "1009",
+                                        "path": "/api/v1/pitches",
+                                        "message": "Validation failed"
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "403", description = "Only ADMIN users can create pitches",
-                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Access denied", value = """
+                                    {
+                                      "status": 403,
+                                      "exception": {
+                                        "code": "1007",
+                                        "path": "/api/v1/pitches",
+                                        "message": "Only ADMIN users can create pitches"
+                                      }
+                                    }
+                                    """)))
     })
     public ResponseEntity<PitchResponse> createPitch(
             @Parameter(
@@ -100,7 +120,17 @@ public class PitchController {
             @ApiResponse(responseCode = "200", description = "Pitch found",
                     content = @Content(schema = @Schema(implementation = PitchResponse.class))),
             @ApiResponse(responseCode = "404", description = "Pitch not found",
-                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Not found", value = """
+                                    {
+                                      "status": 404,
+                                      "exception": {
+                                        "code": "1001",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Record not found"
+                                      }
+                                    }
+                                    """)))
     })
     public ResponseEntity<PitchResponse> getPitchById(@PathVariable UUID id) {
         return ResponseEntity.ok(pitchService.getPitchById(id));
@@ -125,20 +155,49 @@ public class PitchController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Update a pitch",
-            description = "Updates an existing pitch venue. ADMIN role required.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            description = "Updates an existing pitch venue. ADMIN role required."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pitch updated successfully",
                     content = @Content(schema = @Schema(implementation = PitchResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Validation Error", value = """
+                                    {
+                                      "status": 400,
+                                      "exception": {
+                                        "code": "1009",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Validation failed"
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "403", description = "Only ADMIN users can update pitches",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Access denied", value = """
+                                    {
+                                      "status": 403,
+                                      "exception": {
+                                        "code": "1007",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Only ADMIN users can update pitches"
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "404", description = "Pitch not found",
-                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Not found", value = """
+                                    {
+                                      "status": 404,
+                                      "exception": {
+                                        "code": "1001",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Record not found"
+                                      }
+                                    }
+                                    """)))
     })
     public ResponseEntity<PitchResponse> updatePitch(
             @PathVariable UUID id,
@@ -151,17 +210,36 @@ public class PitchController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Delete a pitch",
-            description = "Deletes a pitch venue. ADMIN role required. Associated reservations should be handled before deletion.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            description = "Deletes a pitch venue. ADMIN role required. Associated reservations should be handled before deletion."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Pitch deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "403", description = "Only ADMIN users can delete pitches",
-                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Access denied", value = """
+                                    {
+                                      "status": 403,
+                                      "exception": {
+                                        "code": "1007",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Only ADMIN users can delete pitches"
+                                      }
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "404", description = "Pitch not found",
-                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+                    content = @Content(schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(name = "Not found", value = """
+                                    {
+                                      "status": 404,
+                                      "exception": {
+                                        "code": "1001",
+                                        "path": "/api/v1/pitches/...",
+                                        "message": "Record not found"
+                                      }
+                                    }
+                                    """)))
     })
     public ResponseEntity<Void> deletePitch(@PathVariable UUID id) {
         pitchService.deletePitch(id);

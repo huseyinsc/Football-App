@@ -11,23 +11,24 @@ Football App is an application for organizing matches. full-stack application de
 
 - `backend/`: Spring Boot core application.
     - `config`: Configuration classes (Security, OpenAPI, Bean definitions).
-    - `controller`: REST API endpoints (Auth, Reservations, Pitches, Users).
+    - `controller`: REST API endpoints (Auth, Reservations, Pitches, Users, Contacts, Match-Requests).
     - `dto`: Data Transfer Objects for requests and responses.
-    - `entity`: JPA/Hibernate database models (User, Pitch, Reservation, ReservationParticipant).
+    - `entity`: JPA/Hibernate database models (User, Pitch, Reservation, UserContact, MatchRequest, UserBlock, ContactStrike).
     - `exception`: Custom domain exceptions (sealed classes) and message types.
     - `handler`: Global exception handler and generic API error wrappers.
     - `repository`: Data access layer (Spring Data JPA).
     - `service`: Business logic implementation.
 - `frontend/`: React + TypeScript application.
 
-## 🚀 Getting Started
+## 🏆 v1.2.0 Social & Match Management Highlights
 
-1. Configure your PostgreSQL settings in `backend/src/main/resources/application.yaml` if your local database differs from the defaults.
-2. Create `backend/.env` from `backend/.env.example`.
-   Required keys are `PGUSER`, `PGPASSWORD`, and `JWT_SECRET`.
-   `JWT_SECRET` must be a Base64-encoded signing key. `JWT_EXPIRATION` is optional.
-3. Run `./mvnw spring-boot:run` in the backend directory.
-4. Run `./mvnw test` in `backend/` to execute the isolated test suite against the H2 test profile.
+- **Friends & Contacts Network:** Users can now build their personal football network by sending and accepting friend requests. Contacts are bidirectional (linking both users automatically).
+- **Anti-Spam "2-Strike" System:** To prevent spam, if a user's friend requests are rejected or ignored twice, an automatic block is triggered via `FriendRequestCleanupJob`.
+- **Match Join Requests:** Reservations now support a decoupled joining flow. Users request to join, and organizers approve them.
+- **Organizer Invites:** Organizers can directly invite their friends to join a match for faster team building.
+- **Dynamic Join Policies:** Reservations support `PUBLIC`, `FRIENDS_ONLY` (only contacts can join), or `INVITE_ONLY` participation models.
+- **Enhanced Global Paging:** Full pagination support for User Search and all social list views (Contacts, Invites, Requests).
+- **Premium Swagger Documentation:** Highly informative error examples with specific `MessageType` codes (e.g., 1001, 1007, 1009) to streamline frontend development.
 
 ## 🏆 v1.1.0 Release Highlights
 
@@ -52,7 +53,7 @@ Football App is an application for organizing matches. full-stack application de
 
 ## 📘 API Documentation
 
-Swagger/OpenAPI is now part of the backend and is available locally after starting the application.
+Swagger/OpenAPI is available locally after starting the application:
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI 3.0 JSON: `http://localhost:8080/v3/api-docs`
@@ -73,12 +74,16 @@ Swagger UI is configured with JWT bearer support, so after logging in or registe
 - Reservation creation now rejects past bookings, invalid time ranges, and overlapping active bookings on the same pitch.
 - Partial-hour reservations are priced proportionally instead of being rounded down to zero.
 - JWT signing no longer falls back to a hard-coded secret; startup now requires an explicit `JWT_SECRET`.
-- Security-origin `401` and `403` responses now use the same `ApiError` JSON contract as the rest of the API.
 - Authentication, validation, and reservation-access error contracts are covered by integration tests before Swagger work begins.
 - Swagger/OpenAPI documentation is generated from the live Spring controllers, so the UI and exported JSON stay aligned with the implemented API contract.
 
+- **Access Control:** User interaction (requests, joining) is strictly regulated by blocking status and join policies.
+- **Anti-Spam:** Manual and automatic blocking mechanisms ensure a clean social environment.
+- **Data Integrity:** SQL-level constraints and transaction management for bidirectional contacts and strikes.
+- **Unified Error Contract:** All failures (Validation, Auth, Business Logic) return the same `ApiError` structure with descriptive codes.
+
 ## 🗺️ Project Status
 
-All 10 planned phases are now complete, including the final Swagger/OpenAPI documentation phase. This milestone marks the first stable backend release: `1.0.0`.
+(Social & Match Networking) is now complete. The backend is at version `1.2.0`.
 
 For detailed development phases and setup instructions, please refer to the [ROADMAP.md](./ROADMAP.md) file.

@@ -2,6 +2,7 @@ package com.huseyinsacikay.job;
 
 import com.huseyinsacikay.entity.ContactStrike;
 import com.huseyinsacikay.entity.FriendRequest;
+import com.huseyinsacikay.entity.User;
 import com.huseyinsacikay.entity.UserBlock;
 import com.huseyinsacikay.entity.UserPairId;
 import com.huseyinsacikay.repository.ContactStrikeRepository;
@@ -57,18 +58,16 @@ public class FriendRequestCleanupJob {
 
             // Check if blocked
             if (updatedStrikes >= 2) {
-                // Ensure sorting user1 < user2 for blocks
-                UUID user1 = (senderId.compareTo(receiverId) < 0) ? senderId : receiverId;
-                UUID user2 = (senderId.compareTo(receiverId) < 0) ? receiverId : senderId;
-
-                UserPairId pairId = new UserPairId(user1, user2);
-                if (!userBlockRepository.existsById(pairId)) {
+                if (!userBlockRepository.isBlocked(senderId, receiverId)) {
+                    User first = senderId.compareTo(receiverId) < 0 ? request.getSender() : request.getReceiver();
+                    User second = senderId.compareTo(receiverId) < 0 ? request.getReceiver() : request.getSender();
+                    
                     UserBlock block = UserBlock.builder()
-                            .user1(request.getSender().getId().equals(user1) ? request.getSender() : request.getReceiver())
-                            .user2(request.getSender().getId().equals(user2) ? request.getSender() : request.getReceiver())
+                            .user1(first)
+                            .user2(second)
                             .build();
                     userBlockRepository.save(block);
-                    log.info("Auto-blocked users {} and {} due to 2 ignored/rejected requests.", user1, user2);
+                    log.info("Auto-blocked users {} and {} due to 2 ignored/rejected requests.", first.getId(), second.getId());
                 }
             }
 
